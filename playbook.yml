@@ -41,7 +41,7 @@
 
     - name: Update SSH configuration to be more secure.
       lineinfile:
-        dest: "{{ security_ssh_config_path }}""
+        dest: "{{ security_ssh_config_path }}"
         regexp: "{{ item.regexp }}"
         line: "{{ item.line }}"
         state: present
@@ -57,10 +57,6 @@
       apt:
         update_cache: yes
         cache_valid_time: 3600
-
-    - name: Upgrade APT to the latest packages
-      apt:
-        upgrade: safe
 
     - name: Install fail2ban
       apt:
@@ -91,18 +87,18 @@
         pkg: ufw
         state: installed
 
-    - name: Setup ufw
+    - name: "Firewall: Allow SSH traffic"
+      ufw:
+        rule: allow
+        port: "{{ security_ssh_port }}"
+        proto: "tcp"
+
+    - name: "Firewall: Enable ufw"
       ufw:
         state: enabled
         policy: deny
 
-    - name: Firewall: Allow SSH traffic
-      ufw:
-        rule: allow
-        port: "{{ ubuntu_common_ssh_port }}"
-        proto: "tcp"
-
-    - name: Firewall: Allow web traffic
+    - name: "Firewall: Allow web traffic"
       ufw:
         rule: allow
         port: "{{ item }}"

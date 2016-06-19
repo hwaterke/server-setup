@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 # Run as root and ask password
-ansible-playbook bootstrap.yml -u root --ask-pass
+ansible-playbook playbook.yml -i hosts -u root --ask-pass
