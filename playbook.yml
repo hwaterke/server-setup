@@ -1,0 +1,118 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  vars:
+    DESIRED_ROOT_PASSWORD: 'xxx'
+    DESIRED_USERS_PASSWORD: 'xxx'
+    security_ssh_port: 22
+    security_sshd_name: ssh
+    security_ssh_config_path: /etc/ssh/sshd_config
+    admin_users:
+      - harold
+
+  tasks:
+    - name: Change root password
+      user:
+        name: root
+        password: "{{ DESIRED_ROOT_PASSWORD }}"
+
+    - name: Create admin users
+      user:
+        name: "{{ item }}"
+        password: "{{ DESIRED_USERS_PASSWORD }}"
+      with_items: "{{ admin_users }}"
+
+    - name : Install authorized keys
+      authorized_key:
+        user: "{{ item }}"
+        key: "{{ lookup('file', 'public_keys/' + item) }}"
+        exclusive: yes
+      with_items: "{{ admin_users }}"
+
+    - name: Add admin users to passwordless sudoers
+      lineinfile:
+        dest: /etc/sudoers
+        regexp: '^#?{{ item }}'
+        line: "{{ item }} ALL=(ALL:ALL) NOPASSWD:ALL"
+        state: present
+        validate: 'visudo -cf %s'
+      with_items: "{{ admin_users }}"
+
+    - name: Update SSH configuration to be more secure.
+      lineinfile:
+        dest: "{{ security_ssh_config_path }}""
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      with_items:
+        - { regexp: "^#?PasswordAuthentication", line: "PasswordAuthentication no" }
+        - { regexp: "^#?PermitRootLogin", line: "PermitRootLogin no" }
+        - { regexp: "^#?X11Forwarding", line: "X11Forwarding no" }
+        - { regexp: "^#?AllowTcpForwarding", line: "AllowTcpForwarding yes" }
+        - { regexp: "^#?Port", line: "Port {{ security_ssh_port }}" }
+      notify: restart ssh
+
+    - name: Update APT package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade APT to the latest packages
+      apt:
+        upgrade: safe
+
+    - name: Install fail2ban
+      apt:
+        pkg: fail2ban
+        state: present
+
+    - name: Ensure fail2ban is running and enabled on boot
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+    - name: Install unattended upgrades package
+      apt:
+        pkg: unattended-upgrades
+        state: installed
+
+    - name: Copy unattended-upgrades configuration files in place
+      copy:
+        src: templates/apt_periodic
+        dest: /etc/apt/apt.conf.d/10periodic
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Install firewall
+      apt:
+        pkg: ufw
+        state: installed
+
+    - name: Setup ufw
+      ufw:
+        state: enabled
+        policy: deny
+
+    - name: Firewall: Allow SSH traffic
+      ufw:
+        rule: allow
+        port: "{{ ubuntu_common_ssh_port }}"
+        proto: "tcp"
+
+    - name: Firewall: Allow web traffic
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      with_items:
+        - 80
+        - 443
+
+  handlers:
+    - name: restart ssh
+      service:
+        name: "{{ security_sshd_name }}"
+        state: restarted
