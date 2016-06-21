@@ -29,6 +29,8 @@
         key: "{{ lookup('file', 'public_keys/' + item) }}"
         exclusive: yes
       with_items: "{{ admin_users }}"
+      tags:
+        - keys
 
     - name: Add admin users to passwordless sudoers
       lineinfile:
