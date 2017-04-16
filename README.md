@@ -17,6 +17,14 @@ Open `playbook.yml` and configure the variables at the top.
 To generate the crypted passwords, use `ansible_password.sh`
 
 ## Run the playbook
+
+Create a `hosts` file containing the hosts to configure.
+For example:
+```
+192.168.1.100 ansible_user=pi
+```
+
+Then run the playbook
 `./setup.sh`
 
 Note: connection as root will work only the first time.
