@@ -61,9 +61,6 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Upgrade APT to the latest packages
-      apt: upgrade=safe
-
     - name: Install fail2ban
       apt:
         pkg: fail2ban
@@ -115,7 +112,7 @@
 
     - name: Install logwatch
       apt:
-        pkg: ufw
+        pkg: logwatch
         state: installed
 
     - name: Email log summary daily
@@ -123,7 +120,7 @@
         dest: /etc/cron.daily/00logwatch
         regexp: "^/usr/sbin/logwatch"
         line: "/usr/sbin/logwatch --mailto {{ LOGWATCH_EMAIL }} --detail high"
-        state: present create
+        state: present
 
   handlers:
     - name: restart ssh
