@@ -1,0 +1,24 @@
+---
+
+- name: Check docker presence
+  command: /bin/which docker
+  register: result
+  ignore_errors: True
+  changed_when: no
+
+- name: Install curl for docker
+  package:
+    name: curl
+    state: present
+  when: result|failed
+
+- name: Install docker
+  shell: curl -sSL https://get.docker.com | sh
+  when: result|failed
+
+- name: Add users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  with_items: "{{ admin_users }}"

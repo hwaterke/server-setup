@@ -1,0 +1,17 @@
+---
+- name: Check docker-compose presence
+  stat: path=/usr/local/bin/docker-compose
+  register: docker_compose
+
+- shell: git ls-remote https://github.com/docker/compose | grep refs/tags | grep -oP "[0-9]+\.[0-9][0-9]+\.[0-9]+$" | tail -n 1
+  register: docker_compose_version
+  when: docker_compose.stat.exists == false
+
+- name: Install docker compose
+  shell: curl -L https://github.com/docker/compose/releases/download/{{ docker_compose_version.stdout }}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+  when: docker_compose.stat.exists == false
+
+- name: Apply executable permission
+  file:
+    path: /usr/local/bin/docker-compose
+    mode: "a+x"
