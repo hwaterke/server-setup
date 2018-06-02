@@ -3,3 +3,35 @@
     name: "{{ item }}"
     state: present
   with_items: "{{ packages }}"
+
+- name: Remove useless Raspberry Pi packages
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: true
+  with_items:
+    - wolfram-engine
+    - sonic-pi
+    - scratch
+    - nuscratch
+    - penguinspuzzle
+
+- name: Remove useless packages from the cache
+  apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+
+- name: Add common bash aliases
+  lineinfile:
+    path: "~/.bash_aliases"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    create: yes
+  with_items:
+    - { regexp: "^#?alias ..=", line: "alias ..='cd ..'" }
+    - { regexp: "^#?alias dco=", line: "alias dco='docker-compose'" }
+    - { regexp: "^#?alias dcod=", line: "alias dcod='docker-compose down'" }
