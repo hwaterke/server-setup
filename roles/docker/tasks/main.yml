@@ -10,11 +10,11 @@
   package:
     name: curl
     state: present
-  when: result|failed
+  when: result is failed
 
 - name: Install docker
   shell: curl -sSL https://get.docker.com | sh
-  when: result|failed
+  when: result is failed
 
 - name: Add users to docker group
   user:

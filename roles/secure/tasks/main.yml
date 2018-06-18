@@ -32,7 +32,7 @@
 - name: Install unattended upgrades package
   apt:
     pkg: unattended-upgrades
-    state: installed
+    state: present
 
 - name: Adjust APT update intervals
   copy:
@@ -45,7 +45,7 @@
 - name: Install firewall
   apt:
     pkg: ufw
-    state: installed
+    state: present
 
 - name: "Firewall: Allow SSH traffic"
   ufw:
