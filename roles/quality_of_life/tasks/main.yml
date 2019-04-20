@@ -6,15 +6,9 @@
 
 - name: Remove useless Raspberry Pi packages
   apt:
-    name: "{{ item }}"
+    name: ['wolfram-engine', 'sonic-pi', 'scratch', 'nuscratch', 'penguinspuzzle']
     state: absent
     purge: true
-  with_items:
-    - wolfram-engine
-    - sonic-pi
-    - scratch
-    - nuscratch
-    - penguinspuzzle
 
 - name: Remove useless packages from the cache
   apt:
