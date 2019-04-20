@@ -5,7 +5,6 @@
   vars:
     DESIRED_ROOT_PASSWORD: 'xxx'
     DESIRED_USERS_PASSWORD: 'xxx'
-    LOGWATCH_EMAIL: 'xxx@xxx.com'
     security_ssh_port: 22
     security_sshd_name: ssh
     security_ssh_config_path: /etc/ssh/sshd_config

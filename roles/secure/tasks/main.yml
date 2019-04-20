@@ -66,15 +66,3 @@
   with_items:
     - 80
     - 443
-
-- name: Install logwatch
-  apt:
-    pkg: logwatch
-    state: installed
-
-- name: Email log summary daily
-  lineinfile:
-    dest: /etc/cron.daily/00logwatch
-    regexp: "^/usr/sbin/logwatch"
-    line: "/usr/sbin/logwatch --mailto {{ LOGWATCH_EMAIL }} --detail high"
-    state: present
