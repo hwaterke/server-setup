@@ -57,6 +57,7 @@
   ufw:
     state: enabled
     policy: deny
+    direction: incoming
 
 - name: "Firewall: Allow web traffic"
   ufw:
