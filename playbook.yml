@@ -3,20 +3,19 @@
   become: yes
   become_method: sudo
   vars:
-    DESIRED_ROOT_PASSWORD: 'xxx'
-    DESIRED_USERS_PASSWORD: 'xxx'
-    security_ssh_port: 22
+    DESIRED_ROOT_PASSWORD: "xxx"
+    DESIRED_USERS_PASSWORD: "xxx"
+    security_ssh_port: "22"
     security_sshd_name: ssh
     security_ssh_config_path: /etc/ssh/sshd_config
     admin_users:
-      - harold
+      - pi
     packages:
       - tree
       - nano
       - htop
   roles:
     - quality_of_life
-    - users
     - secure
     - docker
     - docker-compose
